@@ -13,6 +13,7 @@
                 text-align: center;
                 background-color: rgba(30,30,30,1);
                 color: rgba(235,235,235,1);
+                font-family: 'Times New Roman';
                 user-select: none;
                 -moz-user-select: none;
                 -webkit-user-select: none;
@@ -86,9 +87,169 @@
                 color: #fff;
                 display: block;
             }
+            
+            #option_toggle, #close_option {
+                position: fixed;
+                top: 10px;
+                right: 20px;
+                font-size: 20px;
+                cursor: pointer;
+            }
+            
+            #option_panel {
+                transition: all 0.3s;
+                position: fixed;
+                margin: 0;
+                top: 0;
+                right: -100%;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.6);
+                text-align: center;
+                overflow-y: scroll;
+            }
+            
+            #option_panel.active {
+                right: 0%;
+            }
+            
+            #option_panel section {
+                margin-left: auto;
+                margin-right: auto;
+            }
         </style>
     </head>
     <body>
+        <div id="option_toggle">
+            <span>OPTIONS</span>
+        </div>
+        <div id="option_panel">
+            <div id="close_option">
+                <span>CLOSE</span>
+            </div>
+            <section id="control_panel">
+                <div id="animation_control">
+                    <h2>Animation Control</h2>
+                    <hr />
+                    <button id="start">Start</button>
+                    <button id="pause">Pause</button>
+                    <button id="restart">Restart</button>
+                    <button id="clear">Clear</button>
+                    <div>
+                        <label>
+                            <span>Speed Slider: </span>
+                            <span id="speed_label"></span>
+                            <span>fps</span>
+                        </label>
+                        <div class="slider">
+                            <div class="bar" id="speed_bar"></div>
+                            <div class="handle" id="speed_handle"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="parameter_control">
+                    <h2>Parameter Control</h2>
+                    <hr />
+                    <p>These parameters will give the rule of when the cell could born or die</p>
+                    <label>Born: </label>
+                    <input type="number" id="born" />
+                    <label>Survive: </label>
+                    <input type="number" id="survive" />
+                </div>
+                <div id="initiation_control">
+                    <p>You can adjust the zoom in level by adjusting the size of each cell</p>
+                    <label>Birth Rate: </label>
+                    <input type="number" id="probability" />
+                    <label>Cell Size: </label>
+                    <input type="number" id="size" />
+                </div>
+                <div id="painting_control">
+                    <h2>Edit Tool</h2>
+                    <hr />
+                    <p>You can click on the board to draw live cells.</p>
+                    <p>When the Erase radio is selected, you can erace the live cells also.</p>
+                    <input type="radio" name="painting" value="true" checked="checked">Paint
+                    <input type="radio" name="painting" value="false">Erase
+                </div>
+            </section>
+            <section>
+                <div>
+                    <h2>Interesting Presets</h2>
+                    <hr />
+                </div>
+                <div>
+                    <p>Click on any of these buttons to generate a preset on the preset location.</p>
+                    <p>You can adjust the preset location in the lower part of this page.</p>
+                    <p>Better created when the screen is cleared and paused.</p>
+                    <h3>Still Lifes</h3>
+                    <p>Lifes that stay still</p>
+                    <div>
+                        <button class="preset_btn" id="preset_block">Block</button>
+                        <button class="preset_btn" id="preset_beehive">Beehive</button>
+                        <button class="preset_btn" id="preset_loaf">Loaf</button>
+                        <button class="preset_btn" id="preset_boat">Boat</button>
+                    </div>
+                    <h3>Oscillators</h3>
+                    <p>Lifes that animate with a certain period</p>
+                    <div>
+                        <button class="preset_btn" id="preset_blinker">Blinker</button>
+                        <button class="preset_btn" id="preset_toad">Toad</button>
+                        <button class="preset_btn" id="preset_beacon">Beacon</button>
+                        <button class="preset_btn" id="preset_pulsar">Pulsar</button>
+                        <button class="preset_btn" id="preset_pentadecathlon">Pentadecathlon</button>
+                        <button class="preset_btn" id="preset_galaxy">Galaxy</button>
+                        <button class="preset_btn" id="preset_octagon">Octagon</button>
+                    </div>
+                    <h3>Spaceships</h3>
+                    <p>Lifes that can move toward a direction</p>
+                    <div>
+                        <button class="preset_btn" id="preset_glider">Glider</button>
+                        <button class="preset_btn" id="preset_lwss">Lightweight Spaceship</button>
+                    </div>
+                    <h3>Gosper's Glider Gun</h3>
+                    <p>****** TRY ME! and see what will happen! ******</p>
+                    <div>
+                        <button class="preset_btn" id="preset_glider_gun">Gosper's Glider Gun</button>
+                    </div>
+                    <h3>Preset Position</h3>
+                    <div>
+                        <label>x: </label>
+                        <input id="preset_x" type="number" />
+                        <label>y: </label>
+                        <input id="preset_y" type="number" />
+                    </div>
+                </div>
+            </section>
+            <section id="links">
+                <div>
+                    <h2>Useful Links</h2>
+                    <hr />
+                </div>
+                <div>
+                    <p>The links below can lead to lots of details and information of the Game of Life</p>
+                    <p>I extremely want to make the OTCA Metapixel come to live! Could anyone help me on this?</p>
+                    <a target="_blank" href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life on Eng Wikipedia</a>
+                    <a target="_blank" href="https://ja.wikipedia.org/wiki/%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B2%E3%83%BC%E3%83%A0">ライフゲーム on Jap Wikipedia</a>
+                    <a target="_blank" href="https://en.wikipedia.org/wiki/Cellular_automaton">Cellular Automation</a>
+                    <a target="_blank" href="https://en.wikipedia.org/wiki/Turing_completeness">Turing Completeness</a>
+                    <a target="_blank" href="http://www.conwaylife.com/wiki/OTCA_metapixel">OTCA Metapixel</a>
+                    <a target="_blank" href="http://www.nicovideo.jp/watch/sm19509968">OTCA Metapixel ライフゲームの世界</a>
+                </div>
+            </section>
+            <section id="contact">
+                <div>
+                    <h2>Contact & Info</h2>
+                    <hr />
+                </div>
+                <div>
+                    <p style="font-weight: bold">Liby Lee</p>
+                    <p>Programmer & Designer</p>
+                    <p>Email: liby99@icloud.com</p>
+                    <p>This program is only for study use. It is open source and you can use it anyway you want. No certification is needed. I really hope this could help you! </p>
+                    <p>このプログラムはただ勉強のためなので、開源のプログラムです。自由に使ってください。なんの建議があるなら、E-mailしでください。ありがとうございます〜</p>
+                </div>
+            </section>
+        </div>
         <section id="title">
             <div>
                 <h1 id="page_header">Game Of Life</h1>
@@ -107,106 +268,7 @@
                 <span id="status">On Going</span>
             </p>
         </section>
-        <section id="control_panel">
-            <div id="animation_control">
-                <h2>Animation Control</h2>
-                <hr />
-                <button id="start">Start</button>
-                <button id="pause">Pause</button>
-                <button id="restart">Restart</button>
-                <button id="clear">Clear</button>
-                <div>
-                    <label>
-                        <span>Speed Slider: </span>
-                        <span id="speed_label"></span>
-                        <span>fps</span>
-                    </label>
-                    <div class="slider">
-                        <div class="bar" id="speed_bar"></div>
-                        <div class="handle" id="speed_handle"></div>
-                    </div>
-                </div>
-            </div>
-            <div id="parameter_control">
-                <h2>Parameter Control</h2>
-                <hr />
-                <label>Born: </label>
-                <input type="number" id="born" />
-                <label>Survive: </label>
-                <input type="number" id="survive" />
-            </div>
-            <div id="initiation_control">
-                <label>Birth Rate: </label>
-                <input type="number" id="probability" />
-                <label>Pixel Size: </label>
-                <input type="number" id="size" />
-            </div>
-            <div id="painting_control">
-                <h2>Edit Tool</h2>
-                <hr />
-                <p>You can click on the board to draw live cells.</p>
-                <p>When the Erase radio is selected, you can erace the live cells also.</p>
-                <input type="radio" name="painting" value="true" checked="checked">Paint
-                <input type="radio" name="painting" value="false">Erase
-            </div>
-        </section>
-        <section>
-            <div>
-                <h2>Interesting Presets</h2>
-                <hr />
-            </div>
-            <div>
-                <p>Click on any of these buttons to generate a preset on the preset location.</p>
-                <p>You can adjust the preset location in the lower part of this page.</p>
-                <p>Better created when the screen is cleared and paused.</p>
-                <h3>Still Lifes</h3>
-                <div>
-                    <button class="preset_btn" id="preset_block">Block</button>
-                    <button class="preset_btn" id="preset_beehive">Beehive</button>
-                    <button class="preset_btn" id="preset_loaf">Loaf</button>
-                    <button class="preset_btn" id="preset_boat">Boat</button>
-                </div>
-                <h3>Oscillators</h3>
-                <div>
-                    <button class="preset_btn" id="preset_blinker">Blinker</button>
-                    <button class="preset_btn" id="preset_toad">Toad</button>
-                    <button class="preset_btn" id="preset_beacon">Beacon</button>
-                    <button class="preset_btn" id="preset_pulsar">Pulsar</button>
-                    <button class="preset_btn" id="preset_pentadecathlon">Pentadecathlon</button>
-                </div>
-                <h3>Spaceships</h3>
-                <div>
-                    <button class="preset_btn" id="preset_glider">Glider</button>
-                    <button class="preset_btn" id="preset_lwss">Lightweight Spaceship</button>
-                </div>
-                <h3>Gosper's Glider Gun</h3>
-                <div>
-                    <button class="preset_btn" id="preset_glider_gun">Gosper's Glider Gun</button>
-                </div>
-                <h3>Preset Position</h3>
-                <div>
-                    <label>x: </label>
-                    <input id="preset_x" type="number" />
-                    <label>y: </label>
-                    <input id="preset_y" type="number" />
-                </div>
-            </div>
-        </section>
-        <section id="links">
-            <div>
-                <h2>Useful Links</h2>
-                <hr />
-            </div>
-            <div>
-                <p>The links below can lead to lots of details and information of the Game of Life</p>
-                <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life on Eng Wikipedia</a>
-                <a href="https://ja.wikipedia.org/wiki/%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B2%E3%83%BC%E3%83%A0">ライフゲーム on Jap Wikipedia</a>
-                <a href="https://en.wikipedia.org/wiki/Cellular_automaton">Cellular Automation</a>
-                <a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing Completeness</a>
-                <a href="http://www.conwaylife.com/wiki/OTCA_metapixel">OTCA Metapixel</a>
-                <a href="http://www.nicovideo.jp/watch/sm19509968">OTCA Metapixel ライフゲームの世界</a>
-            </div>
-        </section>
+        
     </body>
     <script>
         
@@ -219,6 +281,7 @@
         var content = null; //游戏的主要内容，一个boolean类型的二维数组，储存每个细胞的状态，true为生，false为死
         
         var draggingSlider = false;
+        var running = true;
         
         var presetX = 20;
         var presetY = 20;
@@ -293,12 +356,14 @@
         function stop () {
             clearInterval(timer);
             $("#status").text("Paused");
+            running = false;
         }
         
         //开始进程（不一定是重新开始
         function start () {
             $("#status").text("On Going");
             timer = setInterval(loop, 1000 / frequency);
+            running = true;
         }
         
         //遍历所有细胞，处理下一回合中的所有细胞的状态
@@ -337,7 +402,7 @@
                 for (var j = 0; j < canvas.width / size; j++) {
                     if (content[i][j]) {
                         ctx.fillStyle = "#eaeaea";
-                        ctx.fillRect(i * size, j * size, size, size);
+                        ctx.fillRect(i * size, j * size, size - 0.5, size - 0.5);
                     }
                 }
             }
@@ -355,14 +420,17 @@
             }
             initiateGame();
             start();
+            running = true;
         }
         
         function setSpeed (s) {
             frequency = s;
-            pause = 1000 / frequency;
             clearInterval(timer);
-            timer = setInterval(loop, pause);
             $("#speed_label").text(Math.floor(frequency));
+            if (running) {
+                pause = 1000 / frequency;
+                timer = setInterval(loop, pause);
+            }
         }
         
         //更新Step Count
@@ -518,6 +586,37 @@
                     put(35, 3);
                     put(35, 4);
                     break;
+                case "galaxy":
+                    for (var i = 0; i < 2; i++) {
+                        for (var j = 0; j < 6; j++) {
+                            put(i, j);
+                        }
+                    }
+                    for (var i = 3; i < 9; i++) {
+                        for (var j = 0; j < 2; j++) {
+                            put(i, j);
+                        }
+                    }
+                    for (var i = 7; i < 9; i++) {
+                        for (var j = 3; j < 9; j++) {
+                            put(i, j);
+                        }
+                    }
+                    for (var i = 0; i < 6; i++) {
+                        for (var j = 7; j < 9; j++) {
+                            put(i, j);
+                        }
+                    }
+                    break;
+                case "octagon":
+                    for (var i = 0; i < 8; i++) {
+                        for (var j = 0; j < 8; j++) {
+                            if (i + j == 3 || i - j == 4 || j - i == 4 || i + j == 11) {
+                                put(i, j);
+                            }
+                        }
+                    } 
+                    break;
             }
         }
         
@@ -544,7 +643,10 @@
             
             //开始按钮
             $("#start").click(function (event) {
-                start();
+                if (!running) {
+                    start();
+                    toggleOption();
+                }
             });
 
             //重启按钮
@@ -552,6 +654,7 @@
                 stop();
                 clearCount();
                 run();
+                toggleOption();
             });
             
             //清空按钮
@@ -592,6 +695,7 @@
                 else {
                     painting = false;
                 }
+                toggleOption();
             });
             
             //点击游戏界面的时候，根据当前编辑工具（绘制或擦除）来决定绘制或擦除点击位置的细胞。
@@ -625,13 +729,15 @@
                     handle.css({"margin-left": x - 7 + "px"});
                     
                     var percentage = x / 300;
-                    setSpeed(2 + 40 * percentage)
+                    setSpeed(2 + 40 * percentage);
                 }
             });
             
             $(window).mouseup(function (event) {
                 draggingSlider = false;
             });
+            
+            $("#option_toggle, #close_option").click(toggleOption);
         }
         
         function initiatePreset () {
@@ -639,6 +745,23 @@
                 preset($(this).attr("id").substring(7));
                 render();
             });
+        }
+        
+        function toggleOption() {
+            if ($("#option_panel").hasClass("active")) {
+                $("#option_panel").removeClass("active");
+            }
+            else {
+                $("#option_panel").addClass("active");
+            }
+        }
+        
+        function openOption() {
+            $("#option_panel").addClass("active");
+        }
+        
+        function closeOption() {
+            $("#option_panel").removeClass("active");
         }
         
         //页面初始化函数
