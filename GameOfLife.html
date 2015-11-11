@@ -8,7 +8,7 @@
             body {
                 margin-left: auto;
                 margin-right: auto;
-                padding: 0 0 30px 0;
+                padding: 0;
                 width: 750px;
                 text-align: center;
                 background-color: rgba(30,30,30,1);
@@ -94,6 +94,10 @@
                 right: 20px;
                 font-size: 20px;
                 cursor: pointer;
+            }
+            
+            #close_option {
+                position: absolute;
             }
             
             #option_panel {
@@ -263,10 +267,6 @@
                 <span>Step Count: </span>
                 <span id="count">0</span>
             </p>
-            <p>
-                <span>Status: </span>
-                <span id="status">On Going</span>
-            </p>
         </section>
         <section id="basic_control">
             
@@ -357,13 +357,11 @@
         //暂停进程
         function stop () {
             clearInterval(timer);
-            $("#status").text("Paused");
             running = false;
         }
         
         //开始进程（不一定是重新开始
         function start () {
-            $("#status").text("On Going");
             timer = setInterval(loop, 1000 / frequency);
             running = true;
         }
@@ -709,10 +707,12 @@
                 render();
             });
             
+            //按下速度滑动条触发的方法。
             $("#speed_handle").mousedown(function (event) {
                 draggingSlider = true;
             });
             
+            //拖动速度滑动条的方法。更改当前速度
             $(window).mousemove(function (event) {
                 if (draggingSlider) {
                     var handle = $("#speed_handle");
@@ -735,13 +735,16 @@
                 }
             });
             
+            //松开速度滑动条时的方法
             $(window).mouseup(function (event) {
                 draggingSlider = false;
             });
             
+            //按下屏幕右上角的option按钮
             $("#option_toggle, #close_option").click(toggleOption);
         }
         
+        //初始化每一个预制按钮
         function initiatePreset () {
             $(".preset_btn").click(function () {
                 preset($(this).attr("id").substring(7));
@@ -749,6 +752,7 @@
             });
         }
         
+        //打开或关闭控制面板
         function toggleOption() {
             if ($("#option_panel").hasClass("active")) {
                 $("#option_panel").removeClass("active");
@@ -756,14 +760,6 @@
             else {
                 $("#option_panel").addClass("active");
             }
-        }
-        
-        function openOption() {
-            $("#option_panel").addClass("active");
-        }
-        
-        function closeOption() {
-            $("#option_panel").removeClass("active");
         }
         
         //页面初始化函数
