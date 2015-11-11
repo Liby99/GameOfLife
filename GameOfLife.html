@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Game of Life</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script src="jquery.js"></script>
+        <style>
+            body {
+                margin-left: auto;
+                margin-right: auto;
+                padding: 0 0 30px 0;
+                width: 750px;
+                text-align: center;
+                background-color: rgba(30,30,30,1);
+                color: rgba(235,235,235,1);
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+            }
+            
+            section {
+                width: 750px;
+            }
+            
+            #page_header {
+                font-size: 40px;
+                margin-bottom: -10px;
+            }
+            
+            #content p {
+                text-align: left;
+            }
+            
+            canvas {
+                display: block;
+            }
+            
+            div {
+                margin: 10px;
+            }
+            
+            button {
+                display: inline-block;
+                margin: 10px;
+                line-height: 30px;
+                padding: 0 30px;
+                background-color: #ffaeae;
+                border: 0;
+            }
+            
+            button:hover {
+                background-color: #ff7272;
+            }
+            
+            .slider {
+                margin-left: auto;
+                margin-right: auto;
+                padding: 0;
+                width: 300px;
+                height: 30px;
+            }
+            
+            .slider .bar {
+                position: relative;
+                margin: 14px 0;
+                width: 300px;
+                height: 2px;
+                background-color: #aaa;
+            }
+            
+            .slider .handle {
+                position: absolute;
+                margin-top: -23px;
+                margin-left: 143px;
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                background-color: #ffaeae;
+            }
+            
+            .slider .handle:hover {
+                background-color: #ff7272;
+            }
+            
+            #links a {
+                color: #fff;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <section id="title">
+            <div>
+                <h1 id="page_header">Game Of Life</h1>
+                <p>Program by Liby Lee</p>
+                <hr />
+            </div>
+        </section>
+        <section id="content">
+            <canvas width="750" height="750" id="game_of_life"></canvas>
+            <p>
+                <span>Step Count: </span>
+                <span id="count">0</span>
+            </p>
+            <p>
+                <span>Status: </span>
+                <span id="status">On Going</span>
+            </p>
+        </section>
+        <section id="control_panel">
+            <div id="animation_control">
+                <h2>Animation Control</h2>
+                <hr />
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="restart">Restart</button>
+                <button id="clear">Clear</button>
+                <div>
+                    <label>
+                        <span>Speed Slider: </span>
+                        <span id="speed_label"></span>
+                        <span>fps</span>
+                    </label>
+                    <div class="slider">
+                        <div class="bar" id="speed_bar"></div>
+                        <div class="handle" id="speed_handle"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="parameter_control">
+                <h2>Parameter Control</h2>
+                <hr />
+                <label>Born: </label>
+                <input type="number" id="born" />
+                <label>Survive: </label>
+                <input type="number" id="survive" />
+            </div>
+            <div id="initiation_control">
+                <label>Birth Rate: </label>
+                <input type="number" id="probability" />
+                <label>Pixel Size: </label>
+                <input type="number" id="size" />
+            </div>
+            <div id="painting_control">
+                <h2>Edit Tool</h2>
+                <hr />
+                <input type="radio" name="painting" value="true" checked="checked">Paint
+                <input type="radio" name="painting" value="false">Erase
+            </div>
+        </section>
+        <section>
+            <div>
+                <h2>Interesting Presets</h2>
+                <hr />
+            </div>
+            <div>
+                <h3>Still Lifes</h3>
+                <div>
+                    <button class="preset_btn" id="preset_block">Block</button>
+                    <button class="preset_btn" id="preset_beehive">Beehive</button>
+                    <button class="preset_btn" id="preset_loaf">Loaf</button>
+                    <button class="preset_btn" id="preset_boat">Boat</button>
+                </div>
+                <h3>Oscillators</h3>
+                <div>
+                    <button class="preset_btn" id="preset_blinker">Blinker</button>
+                    <button class="preset_btn" id="preset_toad">Toad</button>
+                    <button class="preset_btn" id="preset_beacon">Beacon</button>
+                    <button class="preset_btn" id="preset_pulsar">Pulsar</button>
+                    <button class="preset_btn" id="preset_pentadecathlon">Pentadecathlon</button>
+                </div>
+                <h3>Spaceships</h3>
+                <div>
+                    <button class="preset_btn" id="preset_glider">Glider</button>
+                    <button class="preset_btn" id="preset_lwss">Lightweight Spaceship</button>
+                </div>
+                <h3>Gosper's Glider Gun</h3>
+                <div>
+                    <button class="preset_btn" id="preset_glider_gun">Gosper's Glider Gun</button>
+                </div>
+            </div>
+        </section>
+        <section id="links">
+            <div>
+                <h2>Useful Links</h2>
+                <hr />
+            </div>
+            <div>
+                <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life on Eng Wikipedia</a>
+                <a href="https://ja.wikipedia.org/wiki/%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B2%E3%83%BC%E3%83%A0">ライフゲーム on Jap Wikipedia</a>
+                <a href="https://en.wikipedia.org/wiki/Cellular_automaton">Cellular Automation</a>
+                <a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing Completeness</a>
+            </div>
+        </section>
+    </body>
+    <script>
+        
+        var size = 3; //像素大小
+        var probability = 0.5; //出生率
+        var painting = true; //是否是绘制模式。false的话是擦除模式
+        var frequency = 20; //Hz数
+        var born = 3; //死细胞周围有多少个活细胞的时候会重生
+        var survive = 2; //活细胞周围有多少个活细胞的时候会继续生存
+        var content = null; //游戏的主要内容，一个boolean类型的二维数组，储存每个细胞的状态，true为生，false为死
+        
+        var draggingSlider = false;
+        
+        var canvas = document.getElementById("game_of_life");
+        var ctx = null;
+        var timer = null;
+        
+        //使用随机函数初始化整个游戏
+        function initiateGame () {
+            randomize();
+        };
+        
+        //遍历所有细胞并给每个细胞赋随机值
+        function randomize() {
+            for (var i = 0; i < content.length; i++) {
+                for (var j = 0; j < content[i].length; j++) {
+                    content[i][j] = (Math.random() < probability);
+                }
+            }
+        }
+        
+        //遍历所有细胞，将所有细胞设置为死
+        function fillDead () {
+            for (var i = 0; i < content.length; i++) {
+                for (var j = 0; j < content[i].length; j++) {
+                    content[i][j] = false;
+                }
+            }
+        }
+        
+        //遍历所有细胞，将所有细胞设置为生
+        function fillLive () {
+            for (var i = 0; i < content.length; i++) {
+                for (var j = 0; j < content[i].length; j++) {
+                    content[i][j] = true;
+                }
+            }
+        };
+        
+        //获取细胞周围（8个）的活着的细胞数量
+        function getNeighborAmount (i, j) {
+            var count = 0;
+            for (var a = i - 1; a <= i + 1; a++) {
+                for (var b = j - 1; b <= j + 1; b++) {
+                    if (inRange(a, b) && !(a == i && b == j) && content[a][b]) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+        
+        //查看i, j是否越界
+        function inRange (i, j) {
+            return i >= 0 && i < content.length && j >= 0 && j < content[i].length;
+        }
+        
+        //每一刻执行的函数。先处理content，再渲染所有图形，再更新count标签
+        function loop () {
+            process();
+            render();
+            count();
+        }
+        
+        //将整个游戏世界清回初始状态
+        function clear () {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        //暂停进程
+        function stop () {
+            clearInterval(timer);
+            $("#status").text("Paused");
+        }
+        
+        //开始进程（不一定是重新开始
+        function start () {
+            $("#status").text("On Going");
+            timer = setInterval(loop, 1000 / frequency);
+        }
+        
+        //遍历所有细胞，处理下一回合中的所有细胞的状态
+        function process () {
+            var clone = new Array(content.length);
+            for (var i = 0; i < content.length; i++) {
+                clone[i] = new Array(content[i].length);
+                for (var j = 0; j < content.length; j++) {
+                    clone[i][j] = getNewStatus(i, j);
+                }
+            }
+            content = clone;
+        }
+        
+        //根据细胞周围活着细胞的数量来确定之后的状态
+        function getNewStatus(i, j) {
+            var neighbor = getNeighborAmount(i, j);
+            if (neighbor < survive) {
+                return false;
+            }
+            else if(neighbor == survive) {
+                return content[i][j];
+            }
+            else if (neighbor == born) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        
+        //清除上一个图像，根据content渲染下一帧图像
+        function render () {
+            clear();
+            for (var i = 0; i < canvas.height / size; i++) {
+                for (var j = 0; j < canvas.width / size; j++) {
+                    if (content[i][j]) {
+                        ctx.fillStyle = "#eaeaea";
+                        ctx.fillRect(i * size, j * size, size, size);
+                    }
+                }
+            }
+        }
+        
+        //开始整个游戏，初始化content二维数组，初始化游戏参数，开始游戏
+        function run () {
+            ctx = canvas.getContext("2d");
+            content = new Array();
+            for (var i = 0; i < canvas.height / size; i++) {
+                content[i] = new Array();
+                for (var j = 0; j < canvas.width / size; j++) {
+                    content[i][j] = false;
+                }
+            }
+            initiateGame();
+            start();
+        }
+        
+        function setSpeed (s) {
+            frequency = s;
+            pause = 1000 / frequency;
+            clearInterval(timer);
+            timer = setInterval(loop, pause);
+            $("#speed_label").text(Math.floor(frequency));
+        }
+        
+        //更新Step Count
+        function count() {
+            $("#count").text(parseInt($("#count").text()) + 1);
+        }
+        
+        //将Step Count清零
+        function clearCount() {
+            $("#count").text(0);
+        }
+        
+        var preset = {
+            startX: 50,
+            startY: 50,
+            block: function () {
+                for (var i = 0; i < 2; i++) {
+                    for (var j = 0; j < 2; j++) {
+                        content[50 + i][50 + j] = true;
+                    }
+                }
+            },
+            beehive: function () {
+                for (var i = 0; i < 4; i++) {
+                    for (var j = 0; j < 3; j++) {
+                        var b1 = i != 0 && j != 0;
+                        var b2 = i != 3 && j != 0;
+                        var b3 = i != 0 && j != 2;
+                        var b4 = i != 3 && j != 2;
+                        var b5 = i != 1 && j != 1;
+                        var b6 = i != 2 && j != 1;
+                        if (b1 && b2 && b3 && b4 && b5 && b6) {
+                            conent[50 + i][50 + j] = true;
+                        }
+                    }
+                }
+            },
+            loaf: function () {
+                content[startX + 1][startY] = true;
+                content[startX + 2][startY] = true;
+                content[startX][startY + 1] = true;
+                content[startX + 3][startY + 1] = true;
+                content[startX + 1][startY + 2] = true;
+                content[startX + 3][startY + 2] = true;
+                content[startX + 2][startY + 3] = true;
+            },
+            boat: function () {
+                content[startX][startY] = true;
+                content[startX + 1][startY] = true;
+                content[startX][startY + 1] = true;
+                content[startX + 2][startY + 1] = true;
+                content[startX + 1][startY + 2] = true;
+            },
+            blinker: function () {
+                for (var i = startX; i < startX + 3; i++) {
+                    content[i][startY] = true;
+                }
+            },
+            toad: function () {
+                for (var i = startX + 1; i < startX + 4; i++) {
+                    content[i][startY] = true;
+                }
+                for (var i = startX; i < startX + 3; i++) {
+                    content[i][startY + 1] = true;
+                }
+            },
+            beacon: function () {
+                for (var i = startX; i < startX + 4; i++) {
+                    for (var j = startY; j < startY + 4; j++) {
+                        if ((i < startX + 2 && j < startY + 2) || (i >= startX + 2 && j >= startY + 2)) {
+                            content[i][j] = true;
+                        }
+                    }
+                }
+            },
+            pulsar: function () {
+                
+            }
+        }
+        
+        //初始化窗口数据及Event Handler
+        function initiateWindow () {
+            //初始化调参部分的
+            $("#game_of_life").css({"margin": ($(window).width - canvas.width) / 2});
+            $("#born").val(born);
+            $("#survive").val(survive);
+            $("#probability").val(probability);
+            $("#size").val(size);
+            $("#speed_label").text(Math.floor(frequency));
+
+            //暂停按钮
+            $("#pause").click(function (event) {
+                stop();
+            });
+            
+            //开始按钮
+            $("#start").click(function (event) {
+                start();
+            });
+
+            //重启按钮
+            $("#restart").click(function (event) {
+                stop();
+                clearCount();
+                run();
+            });
+            
+            //清空按钮
+            $("#clear").click(function (event) {
+                stop();
+                clearCount();
+                fillDead();
+                render();
+            });
+            
+            //更改born和survive规则
+            $("#born, #survive").change(function () {
+                born = $("#born").val();
+                survive = $("#survive").val();
+            });
+            
+            //更改出生率
+            $("#probability").change(function () {
+                probability = $("#probability").val();
+            });
+
+            //更改像素大小
+            $("#size").change(function () {
+                size = $("#size").val();
+                render();
+            });
+            
+            //切换编辑工具
+            $("input[name=painting]").click(function (event) {
+                if ($(this).val() == "true") {
+                    painting = true;
+                }
+                else {
+                    painting = false;
+                }
+            });
+            
+            //点击游戏界面的时候，根据当前编辑工具（绘制或擦除）来决定绘制或擦除点击位置的细胞。
+            $("#game_of_life").click(function (event) {
+                stop();
+                var i = Math.floor(event.offsetX / size);
+                var j = Math.floor(event.offsetY / size);
+                content[i][j] = painting;
+                render();
+            });
+            
+            $("#speed_handle").mousedown(function (event) {
+                draggingSlider = true;
+            });
+            
+            $(window).mousemove(function (event) {
+                if (draggingSlider) {
+                    var handle = $("#speed_handle");
+                    var container = handle.parent();
+                    var margin = container.offset().left;
+                    var x;
+                    if (event.pageX - margin < 0) {
+                        x = 0;
+                    }
+                    else if (event.pageX - margin < container.width()) {
+                        x = event.pageX - margin;
+                    }
+                    else {
+                        x = container.width();
+                    }
+                    handle.css({"margin-left": x - 7 + "px"});
+                    
+                    var percentage = x / 300;
+                    setSpeed(2 + 40 * percentage)
+                }
+            });
+            
+            $(window).mouseup(function (event) {
+                draggingSlider = false;
+            });
+        }
+        
+        function initiatePreset () {
+            $("#preset_block").click(function () {
+                preset.block();
+                render();
+            });
+            
+            $("#preset_beehive").click(function () {
+                preset.beehive();
+                render();
+            });
+        }
+        
+        //页面初始化函数
+        $(function () {
+            initiateWindow();
+            initiatePreset();
+            run();
+        });
+    </script>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Game of Life</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script src="jquery.js"></script>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            canvas {
+                display: block;
+            }
+            
+            div {
+                margin: 10px;
+            }
+            
+            button {
+                display: inline-block;
+                margin: 10px;
+                line-height: 30px;
+                padding: 0 30px;
+                background-color: #ffaeae;
+                border: 0;
+            }
+            
+            button:hover {
+                background-color: #ff7272;
+            }
+        </style>
+    </head>
+    <body>
+        <section id="content">
+            <canvas width="750" height="750" id="game_of_life"></canvas>
+        </section>
+        <section id="control_panel">
+            <div id="animation_control">
+                <h2>Animation Control</h2>
+                <hr />
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="restart">Restart</button>
+                <button id="clear">Clear</button>
+            </div>
+            <div id="parameter_control">
+                <h2>Parameter Control</h2>
+                <hr />
+                <label>Born: </label>
+                <input type="number" id="born" />
+                <label>Survive: </label>
+                <input type="number" id="survive" />
+            </div>
+            <div id="initiation_control">
+                <label>Birth Rate: </label>
+                <input type="number" id="probability" />
+                <label>Pixel Size: </label>
+                <input type="number" id="size" />
+            </div>
+            <div id="painting_control">
+                <h2>Edit Tool</h2>
+                <hr />
+                <input type="radio" name="painting" value="true" checked="checked">Paint
+                <input type="radio" name="painting" value="false">Erase
+            </div>
+        </section>
+    </body>
+    <script>
+        
+        function GameOfLife () {
+            
+            this.size = 3;
+            this.probability = 0.7;
+            this.painting = true;
+            this.born = 3;
+            this.survive = 2;
+            this.content = null;
+            this.canvas = document.getElementById("game_of_life");
+            this.ctx = null;
+            this.timer = null;
+            
+            this.initiate = function () {
+                this.randomize();
+            };
+            this.randomize = function () {
+                for (var i = 0; i < content.length; i++) {
+                    for (var j = 0; j < content[i].length; j++) {
+                        content[i][j] = Math.random() < probability;
+                    }
+                }
+            };
+            this.fillDead = function () {
+                for (var i = 0; i < content.length; i++) {
+                    for (var j = 0; j < content[i].length; j++) {
+                        content[i][j] = false;
+                    }
+                }
+            };
+            this.fillLive = function () {
+                for (var i = 0; i < content.length; i++) {
+                    for (var j = 0; j < content[i].length; j++) {
+                        content[i][j] = true;
+                    }
+                }
+            };
+            this.getNeighborAmount = function (i, j) {
+                var count = 0;
+                for (var a = i - 1; a <= i + 1; a++) {
+                    for (var b = j - 1; b <= j + 1; b++) {
+                        if (inRange(a, b) && !(a == i && b == j) && content[a][b]) {
+                            count++;
+                        }
+                    }
+                }
+                return count;
+            };
+            this.inRange = function (i, j) {
+                return i >= 0 && i < content.length && j >= 0 && j < content[i].length;
+            };
+            this.clear = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            };
+            this.stop = function () {
+                clearInterval(timer);
+            };
+            this.start = function (game) {
+                timer = setInterval(function () {
+                    process();
+                    render(game);
+                }, 50);
+            };
+            process = function () {
+                var clone = new Array(content.length);
+                for (var i = 0; i < content.length; i++) {
+                    clone[i] = new Array(content[i].length);
+                    for (var j = 0; j < content.length; j++) {
+                        var count = getNeighborAmount(i, j);
+                        if (count < survive) {
+                            clone[i][j] = false;
+                        }
+                        else if(count == survive) {
+                            clone[i][j] = content[i][j];
+                        }
+                        else if (count == born) {
+                            clone[i][j] = true;
+                        }
+                        else {
+                            clone[i][j] = false;
+                        }
+                    }
+                }
+                content = clone;
+            };
+            render = function (game) {
+                game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+                for (var i = 0; i < canvas.height / size; i++) {
+                    for (var j = 0; j < canvas.width / size; j++) {
+                        if (!content[i][j]) {
+                            ctx.fillRect(i * size, j * size, size, size);
+                        }
+                    }
+                }
+            };
+            this.act = function () {
+                ctx = this.canvas.getContext("2d");
+                content = new Array();
+                for (var i = 0; i < this.canvas.height / size; i++) {
+                    content[i] = new Array();
+                    for (var j = 0; j < canvas.width / size; j++) {
+                        content[i][j] = false;
+                    }
+                }
+                this.initiate();
+                this.start();
+            };
+        }
+        
+        var Control = {
+            initiate: function (game) {
+                $("#game_of_life").css({"margin": ($(window).width - game.canvas.width) / 2});
+                $("#born").val(game.born);
+                $("#survive").val(game.survive);
+                $("#probability").val(game.probability);
+                $("#size").val(game.size);
+                
+                $("#pause").click(function (event) {
+                    game.stop();
+                });
+
+                $("#start").click(function (event) {
+                    game.start(game);
+                });
+
+                $("#restart").click(function (event) {
+                    game.stop();
+                    game.clear();
+                    game.initiate();
+                    game.start(game);
+                });
+
+                $("#clear").click(function (event) {
+                    game.stop();
+                    game.fillDead();
+                    game.render();
+                });
+
+                $("#born, #survive").change(function () {
+                    game.born = $("#born").val();
+                    game.survive = $("#survive").val();
+                });
+
+                $("#probability").change(function () {
+                    game.probability = $("#probability").val();
+                });
+
+                $("#size").change(function () {
+                    game.size = $("#size").val();
+                });
+
+                $("input[name=painting]").click(function (event) {
+                    if ($(this).val() == "true") {
+                        game.painting = true;
+                    }
+                    else {
+                        game.painting = false;
+                    }
+                });
+
+                $("#game_of_life").click(function (event) {
+                    game.stop();
+                    var i = Math.floor(event.pageX / game.size);
+                    var j = Math.floor(event.pageY / game.size);
+                    game.content[i][j] = painting;
+                    game.render();
+                });
+            }
+        };
+        
+        $(function () {
+            var game = new GameOfLife();
+            Control.initiate(game);
+            game.act();
+        });
+    </script>
+</html>
