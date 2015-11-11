@@ -144,6 +144,8 @@
             <div id="painting_control">
                 <h2>Edit Tool</h2>
                 <hr />
+                <p>You can click on the board to draw live cells.</p>
+                <p>When the Erase radio is selected, you can erace the live cells also.</p>
                 <input type="radio" name="painting" value="true" checked="checked">Paint
                 <input type="radio" name="painting" value="false">Erase
             </div>
@@ -154,6 +156,9 @@
                 <hr />
             </div>
             <div>
+                <p>Click on any of these buttons to generate a preset on the preset location.</p>
+                <p>You can adjust the preset location in the lower part of this page.</p>
+                <p>Better created when the screen is cleared and paused.</p>
                 <h3>Still Lifes</h3>
                 <div>
                     <button class="preset_btn" id="preset_block">Block</button>
@@ -178,6 +183,13 @@
                 <div>
                     <button class="preset_btn" id="preset_glider_gun">Gosper's Glider Gun</button>
                 </div>
+                <h3>Preset Position</h3>
+                <div>
+                    <label>x: </label>
+                    <input id="preset_x" type="number" />
+                    <label>y: </label>
+                    <input id="preset_y" type="number" />
+                </div>
             </div>
         </section>
         <section id="links">
@@ -186,10 +198,13 @@
                 <hr />
             </div>
             <div>
+                <p>The links below can lead to lots of details and information of the Game of Life</p>
                 <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life on Eng Wikipedia</a>
                 <a href="https://ja.wikipedia.org/wiki/%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B2%E3%83%BC%E3%83%A0">ライフゲーム on Jap Wikipedia</a>
                 <a href="https://en.wikipedia.org/wiki/Cellular_automaton">Cellular Automation</a>
                 <a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing Completeness</a>
+                <a href="http://www.conwaylife.com/wiki/OTCA_metapixel">OTCA Metapixel</a>
+                <a href="http://www.nicovideo.jp/watch/sm19509968">OTCA Metapixel ライフゲームの世界</a>
             </div>
         </section>
     </body>
@@ -204,6 +219,9 @@
         var content = null; //游戏的主要内容，一个boolean类型的二维数组，储存每个细胞的状态，true为生，false为死
         
         var draggingSlider = false;
+        
+        var presetX = 20;
+        var presetY = 20;
         
         var canvas = document.getElementById("game_of_life");
         var ctx = null;
@@ -357,72 +375,154 @@
             $("#count").text(0);
         }
         
-        var preset = {
-            startX: 50,
-            startY: 50,
-            block: function () {
-                for (var i = 0; i < 2; i++) {
-                    for (var j = 0; j < 2; j++) {
-                        content[50 + i][50 + j] = true;
-                    }
-                }
-            },
-            beehive: function () {
-                for (var i = 0; i < 4; i++) {
-                    for (var j = 0; j < 3; j++) {
-                        var b1 = i != 0 && j != 0;
-                        var b2 = i != 3 && j != 0;
-                        var b3 = i != 0 && j != 2;
-                        var b4 = i != 3 && j != 2;
-                        var b5 = i != 1 && j != 1;
-                        var b6 = i != 2 && j != 1;
-                        if (b1 && b2 && b3 && b4 && b5 && b6) {
-                            conent[50 + i][50 + j] = true;
+        function preset (item) {
+            switch (item) {
+                case "block":
+                    for (var i = 0; i < 2; i++) {
+                        for (var j = 0; j < 2; j++) {
+                            put(i, j);
                         }
                     }
-                }
-            },
-            loaf: function () {
-                content[startX + 1][startY] = true;
-                content[startX + 2][startY] = true;
-                content[startX][startY + 1] = true;
-                content[startX + 3][startY + 1] = true;
-                content[startX + 1][startY + 2] = true;
-                content[startX + 3][startY + 2] = true;
-                content[startX + 2][startY + 3] = true;
-            },
-            boat: function () {
-                content[startX][startY] = true;
-                content[startX + 1][startY] = true;
-                content[startX][startY + 1] = true;
-                content[startX + 2][startY + 1] = true;
-                content[startX + 1][startY + 2] = true;
-            },
-            blinker: function () {
-                for (var i = startX; i < startX + 3; i++) {
-                    content[i][startY] = true;
-                }
-            },
-            toad: function () {
-                for (var i = startX + 1; i < startX + 4; i++) {
-                    content[i][startY] = true;
-                }
-                for (var i = startX; i < startX + 3; i++) {
-                    content[i][startY + 1] = true;
-                }
-            },
-            beacon: function () {
-                for (var i = startX; i < startX + 4; i++) {
-                    for (var j = startY; j < startY + 4; j++) {
-                        if ((i < startX + 2 && j < startY + 2) || (i >= startX + 2 && j >= startY + 2)) {
-                            content[i][j] = true;
+                    break;
+                case "beehive":
+                    for (var i = 0; i < 4; i++) {
+                        for (var j = 0; j < 3; j++) {
+                            var b1 = i == 0 && j == 0;
+                            var b2 = i == 3 && j == 0;
+                            var b3 = i == 0 && j == 2;
+                            var b4 = i == 3 && j == 2;
+                            var b5 = i == 1 && j == 1;
+                            var b6 = i == 2 && j == 1;
+                            if (!(b1 || b2 || b3 || b4 || b5 || b6)) {
+                                put(i, j);
+                            }
                         }
                     }
-                }
-            },
-            pulsar: function () {
-                
+                    break;
+                case "loaf":
+                    put(1, 0);
+                    put(2, 0);
+                    put(0, 1);
+                    put(3, 1);
+                    put(1, 2);
+                    put(3, 2);
+                    put(2, 3);
+                    break;
+                case "boat":
+                    put(0, 0);
+                    put(1, 0);
+                    put(0, 1);
+                    put(2, 1);
+                    put(1, 2);
+                    break;
+                case "blinker":
+                    for (var i = 0; i < 3; i++) {
+                        put(i, 0);
+                    }
+                    break;
+                case "toad":
+                    for (var i = 1; i < 4; i++) {
+                        put(i, 0);
+                    }
+                    for (var i = 0; i < 3; i++) {
+                        put(i, 1);
+                    }
+                    break;
+                case "beacon":
+                    for (var i = 0; i < 4; i++) {
+                        for (var j = 0; j < 4; j++) {
+                            if ((i < 2 && j < 2) || (i >= 2 && j >= 2)) {
+                                put(i, j);
+                            }
+                        }
+                    }
+                    break;
+                case "pulsar":
+                    for (var i = 0; i < 13; i++) {
+                        for (var j = 0; j < 13; j++) {
+                            if (j == 0 || j == 5 || j == 7 || j == 12) {
+                                if ((i >= 2 && i <= 4) || (i >= 8 && i <= 10)) {
+                                    put(i, j);
+                                }
+                            }
+                            else if ((j >= 2 && j <= 4) || (j >= 8 && j <= 10)) {
+                                if (i == 0 || i == 5 || i == 7 || i == 12) {
+                                    put(i, j);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case "pentadecathlon":
+                    for (var i = 0; i < 3; i++) {
+                        for (var j = 0; j < 8; j++) {
+                            if (!(i == 1 && (j == 1 || j == 6))) {
+                                put(i, j);
+                            }
+                        }
+                    }
+                    break;
+                case "glider":
+                    put(1, 0);
+                    put(2, 1);
+                    for (var i = 0; i < 3; i++) {
+                        put(i, 2);
+                    }
+                    break;
+                case "lwss":
+                    put(0, 0);
+                    put(3, 0);
+                    put(0, 2);
+                    put(1, 3);
+                    put(2, 3);
+                    put(3, 3);
+                    put(4, 3);
+                    put(4, 2);
+                    put(4, 1);
+                    break;
+                case "glider_gun":
+                    put(0, 5);
+                    put(0, 6);
+                    put(1, 5);
+                    put(1, 6);
+                    put(10, 5);
+                    put(10, 6);
+                    put(10, 7);
+                    put(11, 4);
+                    put(11, 8);
+                    put(12, 3);
+                    put(12, 9);
+                    put(13, 3);
+                    put(13, 9);
+                    put(14, 6);
+                    put(15, 4);
+                    put(15, 8);
+                    put(16, 5);
+                    put(16, 6);
+                    put(16, 7);
+                    put(17, 6);
+                    put(20, 3);
+                    put(20, 4);
+                    put(20, 5);
+                    put(21, 3);
+                    put(21, 4);
+                    put(21, 5);
+                    put(22, 2);
+                    put(22, 6);
+                    put(24, 1);
+                    put(24, 2);
+                    put(24, 6);
+                    put(24, 7);
+                    put(34, 3);
+                    put(34, 4);
+                    put(35, 3);
+                    put(35, 4);
+                    break;
             }
+        }
+        
+        function put(i, j) {
+            content[presetX + i][presetY + j] = true;
         }
         
         //初始化窗口数据及Event Handler
@@ -434,6 +534,8 @@
             $("#probability").val(probability);
             $("#size").val(size);
             $("#speed_label").text(Math.floor(frequency));
+            $("#preset_x").val(presetX);
+            $("#preset_y").val(presetY);
 
             //暂停按钮
             $("#pause").click(function (event) {
@@ -473,8 +575,13 @@
 
             //更改像素大小
             $("#size").change(function () {
-                size = $("#size").val();
+                size = $(this).val();
                 render();
+            });
+            
+            $("#preset_x, #preset_y").change(function () {
+                presetX = parseInt($("#preset_x").val());
+                presetY = parseInt($("#preset_y").val());
             });
             
             //切换编辑工具
@@ -528,13 +635,8 @@
         }
         
         function initiatePreset () {
-            $("#preset_block").click(function () {
-                preset.block();
-                render();
-            });
-            
-            $("#preset_beehive").click(function () {
-                preset.beehive();
+            $(".preset_btn").click(function () {
+                preset($(this).attr("id").substring(7));
                 render();
             });
         }
