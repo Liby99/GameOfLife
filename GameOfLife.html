@@ -3,7 +3,8 @@
     <head>
         <title>Game of Life</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <script src="jquery.js"></script>
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
         <style>
             body {
                 margin-left: auto;
@@ -12,7 +13,8 @@
                 width: 750px;
                 text-align: center;
                 background-color: rgba(30,30,30,1);
-                color: rgba(235,235,235,1);
+                color: rgba(210,210,210,1);
+                text-shadow: 0 0 5px rgba(255,255,255,0.5);
                 font-family: 'Times New Roman';
                 user-select: none;
                 -moz-user-select: none;
@@ -38,6 +40,14 @@
             
             div {
                 margin: 10px;
+            }
+            
+            input {
+                border: 0;
+                background-color: rgba(230,230,230,0.8);
+                border-radius: 3px;
+                padding: 5px;
+                margin-right: 10px;
             }
             
             button {
@@ -86,6 +96,7 @@
             #links a {
                 color: #fff;
                 display: block;
+                margin-top: 7px;
             }
             
             #option_toggle, #close_option {
@@ -111,6 +122,7 @@
                 background-color: rgba(20,20,25,0.8);
                 text-align: center;
                 overflow-y: scroll;
+                z-index: 10086;
             }
             
             #option_panel.active {
@@ -120,6 +132,27 @@
             #option_panel section {
                 margin-left: auto;
                 margin-right: auto;
+                margin-top: 50px;
+                margin-bottom: 30px;
+            }
+            
+            #step_count {
+                float: left;
+            }
+            
+            #basic_control {
+                float: right;
+                font-size: 13px;
+            }
+            
+            #basic_control span {
+                transition: all 0.1s;
+                margin-right: 10px;
+                cursor: pointer;
+            }
+            
+            #basic_control span.fade {
+                opacity: 0.5;
             }
         </style>
     </head>
@@ -151,6 +184,8 @@
                         </div>
                     </div>
                 </div>
+            </section>
+            <section>
                 <div id="parameter_control">
                     <h2>Parameter Control</h2>
                     <hr />
@@ -167,6 +202,8 @@
                     <label>Cell Size: </label>
                     <input type="number" id="size" />
                 </div>
+            </section>
+            <section>
                 <div id="painting_control">
                     <h2>Edit Tool</h2>
                     <hr />
@@ -250,7 +287,7 @@
                     <p>Programmer & Designer</p>
                     <p>Email: liby99@icloud.com</p>
                     <p>This program is only for study use. It is open source and you can use it anyway you want. No certification is needed. I really hope this could help you! </p>
-                    <p>このプログラムはただ勉強のためなので、開源のプログラムです。自由に使ってください。なんの建議があるなら、E-mailしでください。ありがとうございます〜</p>
+                    <p>このライフゲームはただ勉強のためなので、開源のプログラムです。自由に使ってください。なんの建議があるなら、E-mailしでください。ありがとうございます〜</p>
                 </div>
             </section>
         </div>
@@ -263,13 +300,23 @@
         </section>
         <section id="content">
             <canvas width="750" height="750" id="game_of_life"></canvas>
-            <p>
-                <span>Step Count: </span>
-                <span id="count">0</span>
-            </p>
-        </section>
-        <section id="basic_control">
-            
+            <div>
+                <p id="step_count">
+                    <span>Step Count: </span>
+                    <span id="count">0</span>
+                </p>
+                <p id="basic_control">
+                    <span id="basic_start" class="fade">
+                        <i class="fa fa-play"></i>
+                    </span>
+                    <span id="basic_pause">
+                        <i class="fa fa-pause"></i>
+                    </span>
+                    <span id="basic_restart">
+                        <i class="fa fa-repeat"></i>
+                    </span>
+                </p>
+            </div>
         </section>
     </body>
     <script>
@@ -358,12 +405,16 @@
         function stop () {
             clearInterval(timer);
             running = false;
+            $("#basic_pause").addClass("fade");
+            $("#basic_start").removeClass("fade");
         }
         
         //开始进程（不一定是重新开始
         function start () {
             timer = setInterval(loop, 1000 / frequency);
             running = true;
+            $("#basic_start").addClass("fade");
+            $("#basic_pause").removeClass("fade");
         }
         
         //遍历所有细胞，处理下一回合中的所有细胞的状态
@@ -423,6 +474,7 @@
             running = true;
         }
         
+        //设置速度
         function setSpeed (s) {
             frequency = s;
             clearInterval(timer);
@@ -443,7 +495,8 @@
             $("#count").text(0);
         }
         
-        function preset (item) {
+        //
+        function putPreset (item) {
             switch (item) {
                 case "block":
                     for (var i = 0; i < 2; i++) {
@@ -637,24 +690,24 @@
             $("#preset_y").val(presetY);
 
             //暂停按钮
-            $("#pause").click(function (event) {
+            $("#pause, #basic_pause").click(function (event) {
                 stop();
             });
             
             //开始按钮
-            $("#start").click(function (event) {
+            $("#start, #basic_start").click(function (event) {
                 if (!running) {
                     start();
-                    toggleOption();
+                    closeOption();
                 }
             });
 
             //重启按钮
-            $("#restart").click(function (event) {
+            $("#restart, #basic_restart").click(function (event) {
                 stop();
                 clearCount();
                 run();
-                toggleOption();
+                closeOption();
             });
             
             //清空按钮
@@ -747,7 +800,7 @@
         //初始化每一个预制按钮
         function initiatePreset () {
             $(".preset_btn").click(function () {
-                preset($(this).attr("id").substring(7));
+                putPreset($(this).attr("id").substring(7));
                 render();
             });
         }
@@ -760,6 +813,11 @@
             else {
                 $("#option_panel").addClass("active");
             }
+        }
+        
+        //关闭控制面板
+        function closeOption() {
+            $("#option_panel").removeClass("active");
         }
         
         //页面初始化函数
